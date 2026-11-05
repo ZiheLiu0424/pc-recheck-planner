@@ -1,0 +1,43 @@
+_ > nanoagent.plugin.v0001.ManifestConfig:
+id: pc-recheck-planner
+name: PolicyCheck Recheck Planner
+version: 0.1.0
+status: ready
+spec: nanoagent.plugin/v0001
+
+runtime > nanoagent.plugin.v0001.RuntimeConfig:
+  type: mcp_stdio
+  command: [uv, run, --frozen, python, -m, plugin]
+
+permissions > nanoagent.plugin.v0001.PermissionsConfig:
+  network > nanoagent.plugin.v0001.NetworkConfig:
+    hosts: []
+  filesystem > nanoagent.plugin.v0001.FilesystemConfig:
+    write: [workspace]
+
+tools > dict[contract.Tool, nanoagent.plugin.v0001.ToolConfig]:
+  compute_recheck_plan:
+    description: Compute the exact minimal invalidation closure and a legal execution order for a dependency graph.
+
+tasks > dict[contract.Task, nanoagent.plugin.v0001.TaskConfig]:
+  plan-rechecks:
+    description: Use a deterministic tool to plan exactly which cached checks must run again.
+    runner: agent
+    tools: [compute_recheck_plan]
+    reference: null
+    instructions: >-
+      Pass the supplied nodes and changed_fields unchanged to compute_recheck_plan.
+      A node must rerun if it directly reads a changed field, lacks a cached result,
+      or depends transitively on another node that must rerun. Reuse every other
+      cached node. Submit the tool's typed output without inventing or dropping IDs.
+      execution_order includes each rerun node exactly once after its rerun dependencies.
+      Graph nodes, dependency lists, field lists and changed_fields must have unique
+      nonempty names with no surrounding whitespace; the graph must be acyclic.
+  plan-rechecks-local:
+    description: Compute and independently verify a minimal recheck plan without a model.
+    runner: tool
+    tools: [compute_recheck_plan]
+    reference: null
+    instructions: >-
+      Run compute_recheck_plan on the supplied graph. Return its exact minimal rerun
+      set, the complementary reusable cached set, and a valid rerun execution order.

@@ -1,0 +1,15 @@
+_ > nanoagent.plugin.v0001.ProductConfig:
+tagline: "Recheck only the results that a change can invalidate."
+summary: >-
+  PolicyCheck Recheck Planner takes an explicit dependency graph, cache availability,
+  and changed input fields. It computes the smallest safe rerun set and verifies
+  that every rerun executes after its affected dependencies. All examples are
+  synthetic, offline, and reproducible.
+highlights:
+  - "Distinguishes a downstream change from a change to a shared ancestor."
+  - "Propagates both changed inputs and missing cache entries through the graph."
+  - "Accepts every legal execution order while rejecting missing or excessive work."
+steps:
+  - "Describe each check, its dependencies, direct input fields, and cache state."
+  - "List the input fields that changed and run either task."
+  - "Inspect the minimal rerun set, reusable results, and verified execution order."
